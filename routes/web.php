@@ -111,8 +111,10 @@ Route::get('/kategori/{jenis_pekerjaan}/Tersedia', [JobsController::class, 'show
 // Menampilkan daftar percakapan
 Route::get('/obrolan', [ChatController::class, 'chatList'])->name('chatList');
 
+
 // Menampilkan percakapan dengan pengguna tertentu berdasarkan email
 Route::get('/obrolan/{userEmail}', [ChatController::class, 'chat'])->name('chat');
-
+Route::get('/obrolan/admin/{userEmail}', [AdminController::class, 'chat'])->name('chatadmin');
+Route::post('/obrolan/admin/send', [AdminController::class, 'sendMessage']);
 // Mengirim pesan
 Route::post('/obrolan/send', [ChatController::class, 'sendMessage']);
