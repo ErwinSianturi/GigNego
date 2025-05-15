@@ -211,35 +211,79 @@
                         <!-- Friends Tab -->
                         <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Jaringan Pendidikan Saya</h4>
-                                <button class="btn btn-outline-primary">
-                                    <i class="fas fa-search me-2"></i>Temukan Institusi
-                                </button>
+                                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Pendidikan Terakhir Saya</h4>
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-4 col-lg-3 mb-4">
-                                    <div class="card shadow-sm text-center h-100">
-                                        <div class="card-body">
-                                            <img src="{{ asset('images/school1.jpg') }}" class="rounded-circle mb-3"
-                                                style="width: 80px; height: 80px; object-fit: cover;" alt="School 1">
-                                            <h5 class="card-title mb-1">Universitas ABC</h5>
-                                            <p class="text-muted small mb-2">Pendidikan Tinggi - Fakultas Teknologi</p>
-                                            <button class="btn btn-sm btn-outline-primary w-100">
-                                                <i class="fas fa-university me-1"></i>Ikuti
-                                            </button>
+                            <div class="row g-4">
+                                <div class="col-md-3 col-lg-4">
+                                    <div class="card shadow-sm h-100 border-0 rounded-3">
+                                        <div class="card-body text-center">
+                                            @if ($pendidikan->isEmpty())
+                                                <p class="text-muted fs-5">Belum ada pendidikan terakhir, silakan
+                                                    tambahkan.</p>
+                                                <form action="{{ route('pendidikan.create') }}" method="GET"
+                                                    class="w-100">
+                                                    <button type="submit"
+                                                        class="btn btn-primary w-100 py-3 fw-semibold shadow-sm hover-scale">
+                                                        Tambahkan Pendidikan Terakhir
+                                                    </button>
+                                                </form>
+                                            @else
+                                                @foreach ($pendidikan as $item)
+                                                    <h5 class="card-title fw-bold text-primary">
+                                                        {{ $item['jenjang_pendidikan'] }}</h5>
+                                                    <p class="card-text mb-1"><strong>Institusi:</strong>
+                                                        {{ $item['nama_institusi'] }}</p>
+                                                    <p class="card-text"><strong>Jurusan:</strong> {{ $item['jurusan'] }}
+                                                    </p>
+                                                    @if (!$loop->last)
+                                                        <hr class="my-3">
+                                                    @endif
+                                                @endforeach
+                                            @endif
+                                            <div>
+                                                @foreach ($pendidikan as $pd)
+                                                    @if ($pd->email == Auth::user()->email)
+                                                        @if ($pendidikan->isEmpty())
+                                                            <form action="{{ route('pendidikan.create') }}"
+                                                                method="GET" class="w-100">
+                                                                <button type="submit"
+                                                                    class="btn btn-primary w-100 py-3 fw-semibold shadow-sm hover-scale">
+                                                                    Tambahkan Pendidikan Terakhir
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <form
+                                                                action="{{ route('pendidikan.edit', $pendidikan->first()->id) }}"
+                                                                method="GET" class="w-100">
+                                                                <button type="submit"
+                                                                    class="btn btn-warning w-100 py-3 fw-semibold shadow-sm hover-scale">
+                                                                    Edit Pendidikan Terakhir
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Placeholder for more educational institutions -->
-                                <div class="col-12 mt-3">
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>Fitur jaringan pendidikan masih dalam
-                                        pengembangan.
-                                    </div>
-                                </div>
+
                             </div>
+
+                            <style>
+                                /* Animasi tombol hover yang smooth dan modern */
+                                .hover-scale {
+                                    transition: transform 0.2s ease-in-out;
+                                }
+
+                                .hover-scale:hover {
+                                    transform: scale(1.05);
+                                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                                }
+                            </style>
+
+
                         </div>
 
                     </div>

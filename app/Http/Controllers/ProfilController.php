@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Profil;
 use App\Models\PengalamanKerja;
 use Illuminate\Http\Request;
+use App\Models\pendidikan;
+
 
 class ProfilController extends Controller
 {
@@ -22,9 +24,10 @@ class ProfilController extends Controller
 
         // Get the Pengalaman Kerja for the user based on the user_id
         $pengalamanKerja = PengalamanKerja::where('user_id', $profils->id)->get();
+        $pendidikan = pendidikan::where('email', $profils->email)->get();
 
         // Pass the profile and Pengalaman Kerja to the view
-        return view('profil.index', compact('profils', 'pengalamanKerja'));
+        return view('profil.index', compact('profils', 'pengalamanKerja','pendidikan'));
     }
 
 

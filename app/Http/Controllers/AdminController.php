@@ -30,8 +30,10 @@ class AdminController extends Controller
 
             // Calculate the sum of all the prices from all transactions
             $jlh_penghasilan = $transaksi->sum('biaya_admin');
+            $jlh_kotor = $transaksi->sum('price');
 
-            return view('admin.index', compact('Jobs', 'Profil', 'jlh_penghasilan', 'users'));
+
+            return view('admin.index', compact('Jobs', 'Profil', 'jlh_penghasilan', 'users', 'jlh_kotor'));
         } else {
             // If not admin, redirect to home
             return redirect('/home');

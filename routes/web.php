@@ -11,6 +11,7 @@ use App\Http\Controllers\PengalamanKerjaController;
 use App\Models\Transaction;
 use App\Http\Middleware\AdminRedirect;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PendidikanController;
 
 // Root Route - Redirect to Admin if logged in as Admin, otherwise to home
 Route::get('/', function () {
@@ -118,3 +119,14 @@ Route::get('/obrolan/admin/{userEmail}', [AdminController::class, 'chat'])->name
 Route::post('/obrolan/admin/send', [AdminController::class, 'sendMessage']);
 // Mengirim pesan
 Route::post('/obrolan/send', [ChatController::class, 'sendMessage']);
+
+
+
+
+Route::resource('/pendidikan', PendidikanController::class);
+
+//Pengalaman Kerja
+Route::get('/pendidikan/create', [PendidikanController::class, 'create'])->name('pendidikan.create');
+Route::post('/pendidikan/store', [PendidikanController::class, 'store'])->name('pendidikan.store');
+Route::get('/pendidikan/{id}/edit', [PengalamanKerjaController::class, 'edit'])->name('pengalaman.edit');
+Route::put('/pendidikan/{id}', [PengalamanKerjaController::class, 'update'])->name('pengalaman.update');
