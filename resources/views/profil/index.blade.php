@@ -211,86 +211,65 @@
                         <!-- Friends Tab -->
                         <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Pendidikan Terakhir Saya</h4>
+                                <h4 class="mb-0">
+                                    <i class="fas fa-graduation-cap me-2"></i>Pendidikan Terakhir Saya
+                                </h4>
+
+                                <!-- Check if education records exist -->
+                                @if ($pendidikan->isEmpty())
+                                    <form action="{{ route('pendidikan.create') }}" method="GET">
+                                        <button type="submit" class="btn btn btn-primary">
+                                            <i class="fas fa-plus-circle me-2"></i>Tambahkan Riwayat Pendidikan
+                                        </button>
+                                    </form>
+                                @else
+                                    @foreach ($pendidikan as $s)
+                                        <form action="{{ route('pengalaman.edit', ['id' => $s->id]) }}"
+                                            method="GET">
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                <i class="fas fa-edit me-2"></i>Edit Riwayat Pendidikan
+                                            </button>
+                                        </form>
+                                    @endforeach
+                                @endif
                             </div>
-                            <div class="row g-4">
-                                <div class="col-md-3 col-lg-4">
-                                    <div class="card shadow-sm h-100 border-0 rounded-3">
-                                        <div class="card-body text-center">
-                                            @if ($pendidikan->isEmpty())
-                                                <p class="text-muted fs-5">Belum ada pendidikan terakhir, silakan
-                                                    tambahkan.</p>
-                                                <form action="{{ route('pendidikan.create') }}" method="GET"
-                                                    class="w-100">
-                                                    <button type="submit"
-                                                        class="btn btn-primary w-100 py-3 fw-semibold shadow-sm hover-scale">
-                                                        Tambahkan Pendidikan Terakhir
-                                                    </button>
-                                                </form>
-                                            @else
-                                                @foreach ($pendidikan as $item)
+
+
+                            <div class="row">
+                                <!-- Placeholder for more educational institutions -->
+                                @if ($pendidikan->isEmpty())
+                                    <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Anda belum memiliki pengalaman kerja. Silakan
+                                    tambahkan pengalaman kerja Anda.
+                                </div>
+                                @else
+                                    <div class="col-12 mt-3">
+                                        @foreach ($pendidikan as $item)
+                                            <div class="card mb-3">
+                                                <div class="card-body">
                                                     <h5 class="card-title fw-bold text-primary">
                                                         {{ $item['jenjang_pendidikan'] }}</h5>
                                                     <p class="card-text mb-1"><strong>Institusi:</strong>
                                                         {{ $item['nama_institusi'] }}</p>
                                                     <p class="card-text"><strong>Jurusan:</strong> {{ $item['jurusan'] }}
                                                     </p>
-                                                    @if (!$loop->last)
-                                                        <hr class="my-3">
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                            <div>
-                                                @foreach ($pendidikan as $pd)
-                                                    @if ($pd->email == Auth::user()->email)
-                                                        @if ($pendidikan->isEmpty())
-                                                            <form action="{{ route('pendidikan.create') }}"
-                                                                method="GET" class="w-100">
-                                                                <button type="submit"
-                                                                    class="btn btn-primary w-100 py-3 fw-semibold shadow-sm hover-scale">
-                                                                    Tambahkan Pendidikan Terakhir
-                                                                </button>
-                                                            </form>
-                                                        @else
-                                                            <form
-                                                                action="{{ route('pendidikan.edit', $pendidikan->first()->id) }}"
-                                                                method="GET" class="w-100">
-                                                                <button type="submit"
-                                                                    class="btn btn-warning w-100 py-3 fw-semibold shadow-sm hover-scale">
-                                                                    Edit Pendidikan Terakhir
-                                                                </button>
-                                                            </form>
-                                                        @endif
-                                                    @endif
-                                                @endforeach
+                                                </div>
                                             </div>
-                                        </div>
+                                            @if (!$loop->last)
+                                                <hr class="my-3">
+                                            @endif
+                                        @endforeach
                                     </div>
-                                </div>
-
-
+                                @endif
                             </div>
-
-                            <style>
-                                /* Animasi tombol hover yang smooth dan modern */
-                                .hover-scale {
-                                    transition: transform 0.2s ease-in-out;
-                                }
-
-                                .hover-scale:hover {
-                                    transform: scale(1.05);
-                                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                                }
-                            </style>
-
-
                         </div>
-
                     </div>
                 </div>
             </div>
         @endif
     </div>
+
+    <div style="height: 5vw"></div>
 
     <!-- Font Awesome if not already included in layout -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

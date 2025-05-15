@@ -143,8 +143,9 @@ class ProfilController extends Controller
     {
         $profils = Profil::where('email', $email)->firstOrFail();
         $pengalamanKerja = PengalamanKerja::where('user_id', $profils->id)->get();
+        $pendidikan = pendidikan::where('email', $profils->email)->get();
 
-        return view('users.show', compact('profils', 'pengalamanKerja'));
+        return view('users.show', compact('profils', 'pengalamanKerja', 'pendidikan'));
     }
 
     public function setNonAktif($id)

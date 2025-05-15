@@ -181,28 +181,20 @@
                                     <i class="fas fa-search me-2"></i>Temukan Institusi
                                 </button>
                             </div>
-
                             <div class="row">
-                                <div class="col-md-4 col-lg-3 mb-4">
-                                    <div class="card shadow-sm text-center h-100">
-                                        <div class="card-body">
-                                            <img src="{{ asset('images/school1.jpg') }}" class="rounded-circle mb-3"
-                                                style="width: 80px; height: 80px; object-fit: cover;" alt="School 1">
-                                            <h5 class="card-title mb-1">Universitas ABC</h5>
-                                            <p class="text-muted small mb-2">Pendidikan Tinggi - Fakultas Teknologi</p>
-                                            <button class="btn btn-sm btn-outline-primary w-100">
-                                                <i class="fas fa-university me-1"></i>Ikuti
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Placeholder for more educational institutions -->
                                 <div class="col-12 mt-3">
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>Fitur jaringan pendidikan masih dalam
-                                        pengembangan.
-                                    </div>
+                                    @foreach ($pendidikan as $item)
+                                        <h5 class="card-title fw-bold text-primary">
+                                            {{ $item['jenjang_pendidikan'] }}</h5>
+                                        <p class="card-text mb-1"><strong>Institusi:</strong>
+                                            {{ $item['nama_institusi'] }}</p>
+                                        <p class="card-text"><strong>Jurusan:</strong> {{ $item['jurusan'] }}
+                                        </p>
+                                        @if (!$loop->last)
+                                            <hr class="my-3">
+                                        @endif
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
