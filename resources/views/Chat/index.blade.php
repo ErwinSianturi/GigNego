@@ -32,7 +32,7 @@
                 }
 
                 // Poll every 3 seconds to refresh the messages
-                setInterval(fetchMessages, 3000);
+                setInterval(fetchMessages, 300);
 
                 // Send message using AJAX
                 $('form').on('submit', function(e) {
