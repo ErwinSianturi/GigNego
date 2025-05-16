@@ -2,9 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        @php
-            $profile = $profils->firstWhere('email', Auth::user()->email);
-        @endphp
+        
 
         @if (!$profile)
             <!-- If the profile doesn't exist, Laravel handles the redirection -->
