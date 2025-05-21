@@ -15,37 +15,39 @@
                         Temukan proyek impianmu dan raih penghasilan <br>lebih!"
                     </p>
                 </div>
-
-                <div x-data="dateSelector()" x-init="init()" class="relative flex justify-center space-x-4 mt-10">
-                    <!-- Panah Atas (mengarah ke bawah 🔻) -->
-                    <div class="absolute top-full mt-2 transition-all duration-300 ease-in-out"
-                        :style="`left: ${arrowX}px; transform: translateX(-50%)`">
-                        <!-- bentuk 🔻 -->
-                        <div
-                            class="w-0 h-0 border-l-8 border-r-8 border-b-[12px] border-l-transparent border-r-transparent border-b-red-500">
+                <div style="display: none">
+                    <div x-data="dateSelector()" x-init="init()" class="relative flex justify-center space-x-4 mt-10">
+                        <!-- Panah Atas (mengarah ke bawah 🔻) -->
+                        <div class="absolute top-full mt-2 transition-all duration-300 ease-in-out"
+                            :style="`left: ${arrowX}px; transform: translateX(-50%)`">
+                            <!-- bentuk 🔻 -->
+                            <div
+                                class="w-0 h-0 border-l-8 border-r-8 border-b-[12px] border-l-transparent border-r-transparent border-b-red-500">
+                            </div>
                         </div>
+
+                        <!-- Panah Bawah (sekarang benar-benar di atas dan mengarah ke atas 🔺) -->
+                        <div class="absolute bottom-full mb-2 transition-all duration-300 ease-in-out"
+                            :style="`left: ${arrowX}px; transform: translateX(-145%)`">
+                            <!-- bentuk 🔺 -->
+                            <div
+                                class="w-0 h-0 border-l-8 border-r-8 border-t-[12px] border-l-transparent border-r-transparent border-t-red-500">
+                            </div>
+                        </div>
+
+
+                        <template x-for="(date, index) in dates" :key="index">
+                            <div @click="selectedDate = index; $nextTick(() => updateArrow($el))" x-init="$nextTick(() => { if (selectedDate === index) updateArrow($el) })"
+                                :class="selectedDate === index ?
+                                    'scale-110 bg-purple-500 text-white shadow-lg' :
+                                    'bg-purple-100 text-black shadow-md'"
+                                class="relative px-6 py-4 rounded-xl text-center transform transition-transform duration-300 cursor-pointer">
+                                <p class="text-lg font-semibold" x-text="date.bulan"></p>
+                                <p class="text-3xl font-bold" x-text="date.tanggal"></p>
+                                <p class="text-md" x-text="date.hari"></p>
+                            </div>
+                        </template>
                     </div>
-
-                    <!-- Panah Bawah (sekarang benar-benar di atas dan mengarah ke atas 🔺) -->
-                    <div class="absolute bottom-full mb-2 transition-all duration-300 ease-in-out"
-                        :style="`left: ${arrowX}px; transform: translateX(-145%)`">
-                        <!-- bentuk 🔺 -->
-                        <div
-                            class="w-0 h-0 border-l-8 border-r-8 border-t-[12px] border-l-transparent border-r-transparent border-t-red-500">
-                        </div>
-                    </div>
-
-                    <template x-for="(date, index) in dates" :key="index">
-                        <div @click="selectedDate = index; $nextTick(() => updateArrow($el))" x-init="$nextTick(() => { if (selectedDate === index) updateArrow($el) })"
-                            :class="selectedDate === index ?
-                                'scale-110 bg-purple-500 text-white shadow-lg' :
-                                'bg-purple-100 text-black shadow-md'"
-                            class="relative px-6 py-4 rounded-xl text-center transform transition-transform duration-300 cursor-pointer">
-                            <p class="text-lg font-semibold" x-text="date.bulan"></p>
-                            <p class="text-3xl font-bold" x-text="date.tanggal"></p>
-                            <p class="text-md" x-text="date.hari"></p>
-                        </div>
-                    </template>
                 </div>
             </div>
             {{-- Kanan: Gambar SVG --}}
@@ -117,18 +119,6 @@
                     <div
                         class="bg-white rounded-2xl shadow-lg p-6 flex items-start justify-between relative min-h-[180px] hover:shadow-xl cursor-pointer">
                         {{-- Ikon atas kanan --}}
-                        <div class="absolute top-3 right-3 p-1">
-                            @if ($job->status_pekerjaan == 'Tersedia')
-                                @include('items.tersedia')
-                            @elseif ($job->status_pekerjaan == 'Dalam Proses')
-                                @include('items.proses')
-                            @elseif ($job->status_pekerjaan == 'Selesai')
-                                @include('items.selesai')
-                            @else
-                                @include('items.tersedia')
-                            @endif
-                        </div>
-
                         {{-- Gambar --}}
                         <img src="{{ asset($job->image1) }}" alt="Job Image"
                             class="w-16 h-16 rounded-full object-cover mr-5">
@@ -136,17 +126,65 @@
                         {{-- Info pekerjaan --}}
                         <div class="flex-1">
                             <h5 class="text-lg font-semibold text-gray-800 mb-1">{{ $job->nama_pekerjaan }}</h5>
-                            <p class="text-base text-gray-600 line-clamp-2">{{ $job->deskripsi }}</p>
-
+                            <p class="text-base text-gray-600 line-clamp-2">
+                                {{ \Carbon\Carbon::parse($job->tanggaldanwaktu)->format('Y-m-d') }}</p>
                             {{-- Waktu --}}
                             <div class="mt-3 flex items-center text-purple-600 text-sm font-medium">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20"
-                                    fill="currentColor">
+                                @php
+                                    $statusLabel = $job->status_pekerjaan ?? 'Tersedia';
+                                    $statusConfig = [
+                                        'Tersedia' => [
+                                            'bg' => 'bg-purple-100',
+                                            'text' => 'text-purple-800',
+                                            'label' => 'Tersedia',
+                                            'icon' => 'text-purple-800', // SVG icon color
+                                        ],
+                                        'Dalam Proses' => [
+                                            'bg' => 'bg-yellow-100',
+                                            'text' => 'text-yellow-800',
+                                            'label' => 'Dalam Proses',
+                                            'icon' => 'text-yellow-800', // SVG icon color
+                                        ],
+                                        'Selesai' => [
+                                            'bg' => 'bg-green-100',
+                                            'text' => 'text-green-800',
+                                            'label' => 'Selesai',
+                                            'icon' => 'text-green-800', // SVG icon color
+                                        ],
+                                    ];
+                                    $config = $statusConfig[$statusLabel] ?? $statusConfig['Tersedia'];
+                                @endphp
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 {{ $config['icon'] }}"
+                                    viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-12.75a.75.75 0 00-1.5 0v4.25a.75.75 0 00.44.68l3.25 1.5a.75.75 0 10.62-1.36l-2.81-1.29V5.25z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                {{ \Carbon\Carbon::parse($job->tanggaldanwaktu)->format('H.i') }} WIB
+                                @php
+                                    $statusLabel = $job->status_pekerjaan ?? 'Tersedia';
+                                    $statusConfig = [
+                                        'Tersedia' => [
+                                            'bg' => 'bg-purple-100',
+                                            'text' => 'text-purple-800',
+                                            'label' => 'Tersedia',
+                                        ],
+                                        'Dalam Proses' => [
+                                            'bg' => 'bg-yellow-100',
+                                            'text' => 'text-yellow-800',
+                                            'label' => 'Dalam Proses',
+                                        ],
+                                        'Selesai' => [
+                                            'bg' => 'bg-green-100',
+                                            'text' => 'text-green-800',
+                                            'label' => 'Selesai',
+                                        ],
+                                    ];
+                                    $config = $statusConfig[$statusLabel] ?? $statusConfig['Tersedia'];
+                                @endphp
+                                <p class="text-base text-gray-600 line-clamp-2 {{ $config['text'] }}">
+                                    {{ \Carbon\Carbon::parse($job->tanggaldanwaktu)->format('H.i') }} WIB
+                                </p>
+
                             </div>
                         </div>
 

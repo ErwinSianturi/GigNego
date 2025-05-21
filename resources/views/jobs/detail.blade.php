@@ -1,6 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $statusLabel = $job->status_pekerjaan ?? 'Tersedia';
+        $statusConfig = [
+            'Tersedia' => [
+                'pageTitleColor' => '#9333ea', // Purple color for page title
+                'sectionLabelColor' => '#9333ea', // Purple color for section labels
+                'bgColor' => '#E6E6FA', // Purple background color (hex)
+            ],
+            'Dalam Proses' => [
+                'pageTitleColor' => '#FBBF24', // Yellow color for page title
+                'sectionLabelColor' => '#FBBF24', // Yellow color for section labels
+                'bgColor' => '#FFF3CD', // Yellow background color (hex)
+            ],
+            'Selesai' => [
+                'pageTitleColor' => '#10B981', // Green color for page title
+                'sectionLabelColor' => '#10B981', // Green color for section labels
+                'bgColor' => '#D4EDDA', // Green background color (hex)
+            ],
+        ];
+        $config = $statusConfig[$statusLabel] ?? $statusConfig['Tersedia']; // Default to 'Tersedia' if not set
+    @endphp
 
     <head>
         <meta charset="UTF-8">
@@ -13,14 +34,13 @@
         <style>
             body {
                 font-family: 'Roboto', sans-serif;
-                background-color: #fff;
+                background-color: #f3ecfd;
                 color: #273041;
             }
 
             .page-title {
                 font-size: 2.3rem;
                 font-weight: 700;
-                color: #9333ea;
                 letter-spacing: 0.5px;
             }
 
@@ -46,18 +66,7 @@
                 border-radius: 1rem;
             }
 
-            .carousel-indicators [data-bs-target] {
-                background-color: #c44ae2;
-            }
-
-            .alert {
-                border-radius: 0.7rem;
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
             .section-label {
-                color: #9333ea;
                 font-weight: 600;
                 font-size: 1rem;
                 letter-spacing: 0.05em;
@@ -83,7 +92,6 @@
                 text-decoration: none;
                 box-shadow: 0 2px 8px rgba(245, 166, 35, 0.12);
                 transition: background 0.18s, box-shadow 0.18s;
-
             }
 
             .Link_Kembali {
@@ -156,12 +164,16 @@
                 filter: drop-shadow(0 2px 4px #00aaff);
                 background-size: 100% 100%;
             }
+
+            .lol {
+                background-color: #e6e6fa;
+            }
         </style>
     </head>
 
     <body>
         <div class="container my-5">
-            <h1 class="page-title mb-4">Detail Pekerjaan</h1>
+            <h1 class="page-title mb-4" style="color: {{ $config['pageTitleColor'] }};">Detail Pekerjaan</h1>
 
             <!-- Flash messages for success or error -->
             @if (session('error'))
@@ -176,8 +188,29 @@
                 </div>
             @endif
 
-            <div class="job-card shadow-sm">
+            @php
+                $statusLabel = $job->status_pekerjaan ?? 'Tersedia';
+                $statusConfig = [
+                    'Tersedia' => [
+                        'pageTitleColor' => '#9333ea', // Purple color for page title
+                        'sectionLabelColor' => '#9333ea', // Purple color for section labels
+                        'bgColor' => '#E6E6FA', // Purple background color (hex)
+                    ],
+                    'Dalam Proses' => [
+                        'pageTitleColor' => '#FBBF24', // Yellow color for page title
+                        'sectionLabelColor' => '#FBBF24', // Yellow color for section labels
+                        'bgColor' => '#FFF3CD', // Yellow background color (hex)
+                    ],
+                    'Selesai' => [
+                        'pageTitleColor' => '#10B981', // Green color for page title
+                        'sectionLabelColor' => '#10B981', // Green color for section labels
+                        'bgColor' => '#D4EDDA', // Green background color (hex)
+                    ],
+                ];
+                $config = $statusConfig[$statusLabel] ?? $statusConfig['Tersedia']; // Default to 'Tersedia' if not set
+            @endphp
 
+            <div class="job-card shadow-sm lol" style="background-color: {{ $config['bgColor'] }};">
                 <!-- Carousel for Images -->
                 <div id="jobImagesCarousel" class="carousel slide" data-bs-ride="carousel" aria-label="Gambar pekerjaan">
                     <div class="carousel-inner">
@@ -190,7 +223,7 @@
                             @else
                                 <div class="carousel-item @if ($idx === 0) active @endif">
                                     <div class="no-image-container" role="img" aria-label="Tidak ada gambar">
-                                        <span class="text-muted">Gambar tidak tersedia</span>
+                                        <span class="text-muted">Gambar tidak ada</span>
                                     </div>
                                 </div>
                             @endif
@@ -211,47 +244,54 @@
                 <div class="row gx-4 gy-4">
                     <div class="col-lg-6 col-md-6 border-end border-2">
                         <div>
-                            <div class="section-label">Nama Pekerjaan</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Nama Pekerjaan
+                            </div>
                             <div class="value-text">{{ $job->nama_pekerjaan }}</div>
                         </div>
 
                         <div>
-                            <div class="section-label">Email</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Email</div>
                             <div class="value-text">{{ $job->email }}</div>
                         </div>
 
                         <div>
-                            <div class="section-label">Harga Pekerjaan</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Harga Pekerjaan
+                            </div>
                             <div class="value-text">{{ 'Rp. ' . number_format($job->harga_pekerjaan) }}</div>
                         </div>
 
                         <div>
-                            <div class="section-label">Status Pekerjaan</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Status Pekerjaan
+                            </div>
                             <div class="value-text">{{ $job->status_pekerjaan }}</div>
                         </div>
 
                         <div>
-                            <div class="section-label">Jenis Pekerjaan</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Jenis Pekerjaan
+                            </div>
                             <div class="value-text">{{ $job->jenis_pekerjaan }}</div>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6">
                         <div>
-                            <div class="section-label">Deskripsi</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Deskripsi</div>
                             <div class="value-text">{{ $job->deskripsi }}</div>
                         </div>
                         <div>
-                            <div class="section-label">Syarat &amp; Ketentuan</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Syarat &
+                                Ketentuan</div>
                             <div class="value-text">{{ $job->syarat_ketentuan }}</div>
                         </div>
                         <div>
-                            <div class="section-label">Lokasi</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Lokasi</div>
                             <div class="value-text">{{ $job->lokasi }}</div>
                         </div>
                         <div>
-                            <div class="section-label">Lama Pekerjaan (Jam)</div>
+                            <div class="section-label" style="color: {{ $config['sectionLabelColor'] }};">Lama Pekerjaan
+                                (Jam)</div>
                             <div class="value-text">{{ $job->time }} Jam</div>
                         </div>
+
                         <!-- Status conditional rendering -->
                         @if (auth()->user()->email === 'admin@gmail.com')
                             <div class="admin-msg" role="alert" aria-live="polite">
@@ -262,13 +302,12 @@
                                 aria-label="Daftar ke pekerjaan ini">
                                 Daftar ke pekerjaan ini
                             </a>
+                            <a href="{{ route('chat', ['userEmail' => $job->email]) }}" class="Negotiate">Negosiasi</a>
                         @else
                             <div class="unavailable-msg" role="alert" aria-live="polite">
                                 Pekerjaan ini tidak tersedia untuk dilamar.
                             </div>
                         @endif
-                        <a href="{{ route('chat', ['userEmail' => $job->email]) }}" class="Negotiate">Negosiasi</a>
-
                         <a href="{{ url()->previous() }}" class="Link_Kembali">Kembali</a>
                     </div>
                 </div>
