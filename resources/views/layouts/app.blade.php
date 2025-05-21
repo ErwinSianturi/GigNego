@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GIGNEGO - Kerja Singkat Deal Cepat</title>
+    <link rel="icon" href="{{ asset('GIGNEGO.svg') }}" type="image/svg+xml">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
