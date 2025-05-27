@@ -100,7 +100,7 @@
                                                         <td>{{ $job->time }}</td>
                                                         <td>
                                                             <span
-                                                                class="badge bg-secondary">{{ $job->email_pengambil}}</span>
+                                                                class="badge bg-secondary">{{$job->applications->count()}}</span>
                                                         </td>
                                                         <td>
                                                             <div class="btn-group">
