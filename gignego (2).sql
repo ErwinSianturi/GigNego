@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2025 at 12:09 PM
+-- Generation Time: May 27, 2025 at 08:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,6 +31,7 @@ CREATE TABLE `applications` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `job_posting_id` bigint(20) UNSIGNED NOT NULL,
   `user_email` varchar(255) NOT NULL,
+  `status` enum('menunggu','diterima','ditolak') NOT NULL DEFAULT 'menunggu',
   `alasan` text NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -90,6 +91,7 @@ CREATE TABLE `job_postings` (
   `image2` varchar(255) DEFAULT NULL,
   `image3` varchar(255) DEFAULT NULL,
   `status` enum('pending','success','failed') NOT NULL DEFAULT 'pending',
+  `bayaran_pekerja` enum('Menunggu','Dibayar') NOT NULL DEFAULT 'Menunggu',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `applicants_count` int(11) NOT NULL DEFAULT 0
@@ -140,7 +142,23 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (11, '2025_04_29_073843_transactions', 1),
 (12, '2025_05_06_013308_create_pengalaman_kerja_table', 1),
 (13, '2025_05_12_075810_create_messages_table', 1),
-(14, '2025_05_15_081144_pendidikan', 1);
+(14, '2025_05_15_081144_pendidikan', 1),
+(15, '2025_05_27_025411_create_notifications_table', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `email_pengguna` varchar(255) NOT NULL,
+  `message` varchar(255) NOT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -174,10 +192,10 @@ CREATE TABLE `password_reset_tokens` (
 
 CREATE TABLE `pendidikan` (
   `id` bigint(20) UNSIGNED NOT NULL,
+  `email` varchar(255) NOT NULL,
   `jenjang_pendidikan` enum('Tidak Sekolah','SD','SMP','SMA','D3','D4','S1','S2','S3') NOT NULL DEFAULT 'Tidak Sekolah',
   `nama_institusi` varchar(255) DEFAULT NULL,
   `jurusan` varchar(255) DEFAULT NULL,
-  `email` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -256,7 +274,7 @@ CREATE TABLE `profils` (
 --
 
 INSERT INTO `profils` (`id`, `email`, `username`, `jenis_kelamin`, `tanggal_lahir`, `kecamatan`, `WA`, `status_akun`, `desa`, `alamat_lengkap`, `pekerjaan`, `Pembayaran`, `status_pekerja`, `image`, `created_at`, `updated_at`) VALUES
-(1, 'chat@gmail.com', 'asd', 'Laki-laki', '2005-12-12', 'Silaen', '123123232323', 'Aktif', 'Paindoana', '123', '123', NULL, NULL, 'profile_images/1747302204_WhatsApp Image 2023-10-07 at 21.09.27_68a553a1.jpg', '2025-05-15 02:43:24', '2025-05-15 02:43:24');
+(1, 'admin@gmail.com', 'Admin GigNego', 'Laki-laki', '2001-12-12', 'Balige', '082294311975', 'Aktif', 'Paindoan', 'Desa Paindoan, Balige', 'Admin GigNego', NULL, NULL, 'profile_images/1748328341_Erwin Jeremy Sianturi.jpg', '2025-05-26 23:45:41', '2025-05-26 23:45:41');
 
 -- --------------------------------------------------------
 
@@ -337,6 +355,12 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -352,8 +376,7 @@ ALTER TABLE `password_reset_tokens`
 -- Indexes for table `pendidikan`
 --
 ALTER TABLE `pendidikan`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `pengalaman_kerja`
@@ -427,13 +450,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pendidikan`
 --
 ALTER TABLE `pendidikan`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pengalaman_kerja`
