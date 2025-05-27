@@ -142,11 +142,11 @@
                                 <div class="col-md-6">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="current_job_switch"
-                                            name="is_current_switch">
+                                            name="is_current_switch" checked>
                                         <label class="form-check-label" for="current_job_switch">Saya masih bekerja di
                                             sini</label>
                                     </div>
-                                    <input type="hidden" name="is_current" id="is_current">
+                                    <input type="hidden" name="is_current" id="is_current" checked>
                                 </div>
                             </div>
 
@@ -328,45 +328,6 @@
                     return true;
                 }
             }
-
-            function validateEndDate(dateStr) {
-                if (!dateStr) return true;
-
-                const startDateStr = document.getElementById('start_date').value;
-                if (!startDateStr) return true;
-
-                const startDate = new Date(startDateStr);
-                const endDate = new Date(dateStr);
-                const endDateFeedback = document.getElementById('end_date_feedback');
-                const endDateInput = document.getElementById('end_date');
-
-                if (endDate <= startDate) {
-                    endDateFeedback.textContent = "Tanggal selesai harus setelah tanggal mulai.";
-                    endDateFeedback.style.display = 'block';
-                    endDateInput.classList.add('is-invalid');
-                    return false;
-                } else {
-                    endDateFeedback.style.display = 'none';
-                    endDateInput.classList.remove('is-invalid');
-                    return true;
-                }
-            }
-
-            // Form submission validation
-            document.getElementById('experienceForm').addEventListener('submit', function(event) {
-                const startDateValid = validateStartDate(document.getElementById('start_date').value);
-                const isCurrentChecked = document.getElementById('current_job_switch').checked;
-                let endDateValid = true;
-
-                if (!isCurrentChecked) {
-                    endDateValid = validateEndDate(document.getElementById('end_date').value);
-                }
-
-                if (!startDateValid || !endDateValid) {
-                    event.preventDefault();
-                    return false;
-                }
-            });
         });
     </script>
 @endsection

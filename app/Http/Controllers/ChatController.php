@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Message;
@@ -67,5 +68,24 @@ class ChatController extends Controller
 
         // Redirect ke halaman percakapan setelah pengiriman pesan
         return redirect()->route('chat', ['userEmail' => $request->input('receiver_email')]);
+    }
+
+    // MessageController.php
+    public function deleteAllMessages($receiverEmail)
+    {
+        try {
+            // Delete all messages between the authenticated user and the receiver
+            Message::where(function ($query) use ($receiverEmail) {
+                $query->where('sender_email', Auth::user()->email)
+                    ->where('receiver_email', $receiverEmail);
+            })->orWhere(function ($query) use ($receiverEmail) {
+                $query->where('sender_email', $receiverEmail)
+                    ->where('receiver_email', Auth::user()->email);
+            })->delete();
+
+            return redirect()->back()->with('success', 'All messages have been deleted');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete messages');
+        }
     }
 }

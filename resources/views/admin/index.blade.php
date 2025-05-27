@@ -337,6 +337,7 @@
                                             <th>Job Title</th>
                                             <th>Status</th>
                                             <th>Status Pembayaran</th>
+                                            <th>Pembayaran ke Pekerja</th>
                                             <th>Posted By</th>
                                             <th>Action</th>
                                         </tr>
@@ -363,11 +364,26 @@
                                                         {{ $job->status }}
                                                     </span>
                                                 </td>
+                                                <td><span
+                                                        class="badge bg-{{ $job->bayaran_pekerja == 'Dibayar' ? 'success' : 'warning' }}">
+                                                        {{ $job->bayaran_pekerja }}
+                                                    </span></td>
                                                 <td>{{ $job->email }}</td>
                                                 <td>
                                                     @if ($job->status == 'success')
-                                                        <span class="text-success"><i
-                                                                class="fas fa-check-circle me-1"></i>Completed</span>
+                                                        @if ($job->bayaran_pekerja !== 'Dibayar')
+                                                            <form action="{{ route('jobs.bayar', $job) }}" method="POST"
+                                                                style="display:inline">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                                    <i class="fas fa-money-bill-wave me-1"></i>Mark as
+                                                                    Dibayar
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="text-success"><i
+                                                                    class="fas fa-check-circle me-1"></i>Completed</span>
+                                                        @endif
                                                     @else
                                                         <a href="{{ url($job->id . '/delete') }}"
                                                             class="btn btn-sm btn-danger">
@@ -494,7 +510,7 @@
 
                         <div class="card-body">
                             <div class="table-responsive">
-                                <p class="text-muted mb-0">Total Pendapatan Bersih (10% dari semua transaksi):</p>
+                                <p class="text-muted mb-0">Total Pendapatan Bersih (Rp 5.000 per transaksi):</p>
                                 <span
                                     class="badge bg-success text-white fs-5">Rp{{ number_format($jlh_penghasilan, 0, ',', '.') }}</span>
 
@@ -544,10 +560,23 @@
                                                             <span
                                                                 class="text-muted small">&lt;{{ $user->email }}&gt;</span>
                                                         </div>
-                                                        <a href="{{ route('chatadmin', ['userEmail' => $user->email]) }}"
-                                                            class="btn btn-outline-primary btn-sm">
-                                                            Chat
-                                                        </a>
+                                                        <div>
+                                                            <a href="{{ route('chat', ['userEmail' => $user->email]) }}"
+                                                                class="btn btn-outline-primary btn-sm">
+                                                                Chat
+                                                            </a>
+
+                                                            <!-- Delete Messages Form -->
+                                                            <form
+                                                                action="{{ route('messages.delete-all', ['receiverEmail' => $user->email]) }}"
+                                                                method="POST" style="display:inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="btn btn-outline-danger btn-sm">Delete All
+                                                                    Messages</button>
+                                                            </form>
+                                                        </div>
                                                     </li>
                                                 @endif
                                             @empty

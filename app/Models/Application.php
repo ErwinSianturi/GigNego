@@ -15,6 +15,7 @@ class Application extends Model
         'user_email',
         'job_posting_id',
         'alasan',
+        'status'
     ];
 
     // Define the inverse relationship with JobPosting

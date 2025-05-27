@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('pendidikan', function (Blueprint $table) {
             // Make email the primary key instead of the default 'id'
-            $table->string('email')->primary(); // Email becomes the primary key
+            $table->id();
+            $table->string('email');
 
             // Menambahkan kolom jenjang pendidikan dengan tipe enum
             $table->enum('jenjang_pendidikan', ['Tidak Sekolah', 'SD', 'SMP', 'SMA', 'D3', 'D4', 'S1', 'S2', 'S3'])

@@ -12,6 +12,12 @@ use App\Models\Transaction;
 use App\Http\Middleware\AdminRedirect;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PendidikanController;
+use App\Http\Controllers\Notif; // Adjust the path based on your controller
+
+
+Route::post('/notifications/mark-read', [Notif::class, 'markAsRead'])->name('notifications.markRead');
+Route::get('/notifications', [Notif::class, 'notif'])->name('notifications');
+
 
 // Root Route - Redirect to Admin if logged in as Admin, otherwise to home
 Route::get('/', function () {
@@ -65,6 +71,7 @@ Route::get('/jobs/{id}/delete', [JobsController::class, 'delete']);
 Route::get('jobs/{id}/detail', [JobsController::class, 'showdetil']);
 Route::get('jobs/{jobId}/applicants', [JobsController::class, 'showApplicants'])->name('jobs.applicants');
 Route::post('/jobs', [JobsController::class, 'store']);
+Route::post('/jobs/{job}/bayar', [JobsController::class, 'bayar'])->name('jobs.bayar');
 
 // Profile Management Routes
 Route::get('/profil/{id}/edit', [ProfilController::class, 'edit']);
@@ -128,5 +135,10 @@ Route::resource('/pendidikan', PendidikanController::class);
 //Pengalaman Kerja
 Route::get('/pendidikan/create', [PendidikanController::class, 'create'])->name('pendidikan.create');
 Route::post('/pendidikan/store', [PendidikanController::class, 'store'])->name('pendidikan.store');
-Route::get('/pendidikan/{id}/edit', [PengalamanKerjaController::class, 'edit'])->name('pengalaman.edit');
-Route::put('/pendidikan/{id}', [PengalamanKerjaController::class, 'update'])->name('pengalaman.update');
+Route::get('/pendidikan/{id}/edit', [PendidikanController::class, 'edit'])->name('pendidikan.edit');
+Route::put('/pendidikan/{id}', [PendidikanController::class, 'update'])->name('pendidikan.update');
+
+//deletechat
+Route::delete('/messages/delete-all/{receiverEmail}', [ChatController::class, 'deleteAllMessages'])->name('messages.delete-all');
+
+

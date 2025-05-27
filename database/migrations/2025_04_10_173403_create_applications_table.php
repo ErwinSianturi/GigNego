@@ -11,8 +11,9 @@ class CreateApplicationsTable extends Migration
     Schema::create('applications', function (Blueprint $table) {
         $table->id();
         $table->foreignId('job_posting_id')->constrained('job_postings')->onDelete('cascade');
-        $table->string('user_email'); // Make user_email unique
-        $table->text('alasan');  // Reason for applying
+        $table->string('user_email');
+        $table->enum('status', ['menunggu', 'diterima', 'ditolak'])->default('menunggu');
+        $table->text('alasan');
         $table->timestamps();
     });
 }

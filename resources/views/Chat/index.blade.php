@@ -231,7 +231,9 @@
                     <strong class="receiver-username">{{ $receiver->username }}</strong>
                 </div>
                 <div class="messages-wrapper">
-                    <div class="messages">
+
+                    <div style="height: 600px" class="messages">
+
                         @foreach ($messages as $message)
                             <div
                                 class="message {{ $message->sender_email == auth()->user()->email ? 'current-user' : '' }}">
@@ -280,7 +282,10 @@
                     /* Warna saat hover */
                 }
             </style>
+
         @endif
 
+
     </body>
+
 @endsection

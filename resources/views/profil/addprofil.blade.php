@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -149,7 +148,7 @@
                                 <div class="mb-3">
                                     <label for="image" class="form-label"><i class="fas fa-upload me-2"></i>Upload Foto (opsional)</label>
                                     <input type="file" name="image" class="form-control" id="image">
-                                    <div class="form-text text-muted">Format yang didukung: JPG, PNG, GIF. Maks 2MB.</div>
+                                    <div class="form-text text-muted">Format yang didukung: JPG, PNG, GIF</div>
                                 </div>
                             </div>
                         </div>

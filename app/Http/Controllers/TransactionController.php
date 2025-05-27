@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Application;
 use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
@@ -94,6 +94,7 @@ class TransactionController extends Controller
             ->get();
 
         $takenJobs = JobPosting::where('email_pengambil', Auth::user()->email)->get();
+        $jobs = JobPosting::all();
 
         $ongoingJobs = JobPosting::where('email', Auth::user()->email)
             ->where('status_pekerjaan', 'Dalam Proses')
@@ -102,8 +103,17 @@ class TransactionController extends Controller
         $doneJobs = JobPosting::where('email', Auth::user()->email)
             ->where('status_pekerjaan', 'Selesai')
             ->get();
+                $jobdikerjakan = JobPosting::where('email_pengambil', Auth::user()->email)
+            ->where('status_pekerjaan', 'Dalam Proses')
+            ->get();
 
-        return view('jobs.index', compact('postedJobs', 'takenJobs', 'ongoingJobs', 'doneJobs'));
+        $jobselesai = JobPosting::where('email_pengambil', Auth::user()->email)
+            ->where('status_pekerjaan', 'Selesai')
+            ->get();
+
+        $apply = Application::where('user_email', Auth::user()->email)->get();
+
+        return view('jobs.index', compact('postedJobs', 'takenJobs', 'ongoingJobs', 'doneJobs', 'apply', 'jobs', 'jobselesai', 'jobdikerjakan'));
     }
 
     public function show($job)

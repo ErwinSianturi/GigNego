@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('image2')->nullable();
             $table->string('image3')->nullable();
             $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
+            $table->enum('bayaran_pekerja',['Menunggu', 'Dibayar'])->default('Menunggu');
             $table->timestamps();
         });
     }

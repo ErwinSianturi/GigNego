@@ -12,13 +12,13 @@ class PendidikanController extends Controller
     public function index()
     {
         $pendidikan = pendidikan::all();
-        return view('profil.pendidikan.index', compact('pendidikan'));
+        return view('profil.Pendidikan.index', compact('pendidikan'));
     }
 
     // Show the form for creating a new pendidikan
     public function create()
     {
-        return view('profil.pendidikan.create');
+        return view('profil.Pendidikan.create');
     }
 
     // Store a newly created pendidikan in storage
@@ -29,7 +29,6 @@ class PendidikanController extends Controller
             'jenjang_pendidikan' => 'required|string|max:255',
             'nama_institusi' => 'nullable|string|max:255',
             'jurusan' => 'nullable|string|max:255',
-            // Remove email validation since it's coming from the authenticated user
         ]);
 
         // Create a new pendidikan record
@@ -37,7 +36,7 @@ class PendidikanController extends Controller
             'jenjang_pendidikan' => $request->jenjang_pendidikan,
             'nama_institusi' => $request->nama_institusi,
             'jurusan' => $request->jurusan,
-            'email' => Auth::user()->email,  // Get the email from the authenticated user
+            'email' => Auth::user()->email,
         ]);
 
         // Redirect with success message
@@ -49,7 +48,7 @@ class PendidikanController extends Controller
     // Show the form for editing the specified pendidikan
     public function edit(pendidikan $pendidikan)
     {
-        return view('profil.pendidikan.edit', compact('pendidikan'));
+        return view('profil.Pendidikan.edit', compact('pendidikan'));
     }
 
     // Update the specified pendidikan in storage

@@ -224,8 +224,7 @@
                                     </form>
                                 @else
                                     @foreach ($pendidikan as $s)
-                                        <form action="{{ route('pengalaman.edit', ['id' => $s->id]) }}"
-                                            method="GET">
+                                        <form action="{{ route('pendidikan.edit', [$s->id]) }}" method="GET">
                                             <button type="submit" class="btn btn-outline-primary">
                                                 <i class="fas fa-edit me-2"></i>Edit Riwayat Pendidikan
                                             </button>
@@ -239,9 +238,8 @@
                                 <!-- Placeholder for more educational institutions -->
                                 @if ($pendidikan->isEmpty())
                                     <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>Anda belum memiliki pengalaman kerja. Silakan
-                                    tambahkan pengalaman kerja Anda.
-                                </div>
+                                        <i class="fas fa-info-circle me-2"></i>Anda belum mengisi Pendidikan Terakhir anda.
+                                    </div>
                                 @else
                                     <div class="col-12 mt-3">
                                         @foreach ($pendidikan as $item)

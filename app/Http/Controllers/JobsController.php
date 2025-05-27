@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\JobPosting;
-use App\Models\Application; // Ensure Application model is included
+use App\Models\Application;
+use App\Models\Notification; // Ensure Application model is included
 use Illuminate\Http\Request;
 use App\Models\Profil;
 
@@ -15,6 +16,7 @@ class JobsController extends Controller
         $postedJobs = JobPosting::where('email', Auth::user()->email)
             ->where('status_pekerjaan', 'Tersedia')
             ->get();
+        $jobs = JobPosting::all();
 
         $takenJobs = JobPosting::where('email_pengambil', Auth::user()->email)->get();
 
@@ -22,11 +24,21 @@ class JobsController extends Controller
             ->where('status_pekerjaan', 'Dalam Proses')
             ->get();
 
+        $jobdikerjakan = JobPosting::where('email_pengambil', Auth::user()->email)
+            ->where('status_pekerjaan', 'Dalam Proses')
+            ->get();
+
+
         $doneJobs = JobPosting::where('email', Auth::user()->email)
             ->where('status_pekerjaan', 'Selesai')
             ->get();
+        $jobselesai = JobPosting::where('email_pengambil', Auth::user()->email)
+            ->where('status_pekerjaan', 'Selesai')
+            ->get();
+        // Yanng Diamil
+        $apply = Application::where('user_email', Auth::user()->email)->get();
 
-        return view('jobs.index', compact('postedJobs', 'takenJobs', 'ongoingJobs', 'doneJobs'));
+        return view('jobs.index', compact('postedJobs', 'takenJobs', 'ongoingJobs', 'doneJobs', 'apply', 'jobs', 'jobselesai', 'jobdikerjakan'));
     }
 
     public function create()
@@ -225,7 +237,7 @@ class JobsController extends Controller
             ->get();
 
 
-        return view('jobs.category', compact('jobs', 'postedJobs','doneJobs', 'ongoingJobs', 'jenis_pekerjaan'));
+        return view('jobs.category', compact('jobs', 'postedJobs', 'doneJobs', 'ongoingJobs', 'jenis_pekerjaan'));
     }
 
     public function showdetil(int $id)
@@ -243,59 +255,64 @@ class JobsController extends Controller
     }
 
     public function apply(Request $request, $jobId)
-{
-    // Validate the application request data
-    $request->validate([
-        'alasan' => 'required|string|max:1000',
-    ]);
+    {
+        // Validate the application request data
+        $request->validate([
+            'alasan' => 'required|string|max:1000',
+        ]);
 
-    // Get the user's profile
-    $profils = Profil::where('email', Auth::user()->email)->first();
+        // Get the user's profile
+        $profils = Profil::where('email', Auth::user()->email)->first();
 
-    // Check if profile is incomplete
-    if (!$profils || empty($profils->username)) {
-        return redirect('profil')->with('error', 'Please complete your profile before applying for a job.');
-    }
+        // Check if profile is incomplete
+        if (!$profils || empty($profils->username)) {
+            return redirect('profil')->with('error', 'Tolong Lengkapi profil untuk melamar ke pekerjaan.');
+        }
 
-    // Check if the user is currently employed
-    if ($profils->status_pekerja === "Bekerja") {
-        return redirect('jobs/' . $jobId . '/detail')->with('error', 'Anda masih dalam status bekerja dan tidak dapat melamar pekerjaan.');
-    }
+        // Check if the user is currently employed
+        if ($profils->status_pekerja === "Bekerja") {
+            return redirect('jobs/' . $jobId . '/detail')->with('error', 'Anda masih dalam status bekerja dan tidak dapat melamar pekerjaan.');
+        }
 
-    if ($profils->status_akun != "Aktif") {
-        return redirect('jobs/' . $jobId . '/detail')->with('error', 'Akun Anda sudah di nonaktifkan');
-    }
+        if ($profils->status_akun != "Aktif") {
+            return redirect('jobs/' . $jobId . '/detail')->with('error', 'Akun Anda sudah di nonaktifkan');
+        }
 
-    // Find the job posting by ID
-    $jobPosting = JobPosting::findOrFail($jobId);
+        // Find the job posting by ID
+        $jobPosting = JobPosting::findOrFail($jobId);
 
-    // Get the user's email
-    $userEmail = $profils->email;
+        // Get the user's email
+        $userEmail = $profils->email;
 
-    // Check if the user has already applied for the same job posting
-    $existingApplication = Application::where('job_posting_id', $jobId)
-        ->where('user_email', $userEmail)
-        ->first();
+        // Check if the user has already applied for the same job posting
+        $existingApplication = Application::where('job_posting_id', $jobId)
+            ->where('user_email', $userEmail)
+            ->first();
 
-    if ($existingApplication) {
-        // If the application already exists, redirect with an error message
+        if ($existingApplication) {
+            // If the application already exists, redirect with an error message
+            return redirect('jobs/' . $jobId . '/detail')
+                ->with('error', 'Anda Sudah Mendaftar ke pekerjaan ini.');
+        }
+
+        // Save the new application with the user's email and the reason
+        $jobPosting->applications()->create([
+            'user_email' => $userEmail,
+            'alasan' => $request->alasan,
+        ]);
+
+        // Increment the applicants_count by 1
+        $jobPosting->increment('applicants_count');
+
+        Notification::create([
+            'email_pengguna' => $jobPosting->email, // Email of the job poster
+            'message' => 'User ' . $userEmail . ' mendaftar ke pekerjaan ' . $jobPosting->nama_pekerjaan,
+        ]);
+
+        // Redirect back to the job detail page with a success message
         return redirect('jobs/' . $jobId . '/detail')
-            ->with('error', 'You have already applied for this job.');
+            ->with('success', 'Lamaran anda sudah disubmit.');
     }
-
-    // Save the new application with the user's email and the reason
-    $jobPosting->applications()->create([
-        'user_email' => $userEmail,
-        'alasan' => $request->alasan,
-    ]);
-
-    // Increment the applicants_count by 1
-    $jobPosting->increment('applicants_count');
-
-    // Redirect back to the job detail page with a success message
-    return redirect('jobs/' . $jobId . '/detail')
-        ->with('success', 'Your application has been submitted.');
-}
 
 
 
@@ -310,7 +327,7 @@ class JobsController extends Controller
     }
     public function assignUser(Request $request, int $id)
     {
-        // Validate the request for email_pengambil
+        // Validate the request for email_pengambil and status_pekerjaan
         $validated = $request->validate([
             'email_pengambil' => 'required|string|email',
             'status_pekerjaan' => 'required|in:Tersedia,Dalam Proses,Selesai'
@@ -319,15 +336,57 @@ class JobsController extends Controller
         // Retrieve the job posting by ID
         $job = JobPosting::findOrFail($id);
 
-        // Update the job posting with the assigned user's email
-        $job->update([
-            'email_pengambil' => $request->email_pengambil,
-            'status_pekerjaan' => $request->status_pekerjaan,
-        ]);
+        // Retrieve the application that corresponds to the email_pengambil
+        $application = $job->applications()->where('user_email', $request->email_pengambil)->first();
 
-        // Redirect with success message
-        return redirect('jobs')->with('status', 'User successfully assigned to the job!');
+        if ($application) {
+            // Update the chosen application status to "diterima"
+            $application->update([
+                'status' => 'diterima',
+            ]);
+
+            // Set the status of all other applications for this job to "ditolak"
+            $rejectedApplications = $job->applications()->where('id', '!=', $application->id)->get();
+
+            foreach ($rejectedApplications as $rejectedApplication) {
+                // Update status to "ditolak" and send a notification for rejection
+                $rejectedApplication->update(['status' => 'ditolak']);
+
+                // Create a notification for the rejected user
+                Notification::create([
+                    'email_pengguna' => $rejectedApplication->user_email, // Email of the rejected user
+                    'message' => 'Lamaran ke pekerjaan: ' . $job->nama_pekerjaan . ' Ditolak',
+                ]);
+            }
+
+            // Update the job posting with the assigned user's email and status_pekerjaan
+            $job->update([
+                'email_pengambil' => $request->email_pengambil,
+                'status_pekerjaan' => $request->status_pekerjaan,
+                'status_pekerja' => 'Menunggu',
+            ]);
+
+            // Create a notification for the user assigned to the job
+            Notification::create([
+                'email_pengguna' => $request->email_pengambil, // Email of the user applying
+                'message' => 'Lamaran ke pekerjaan ' . $job->nama_pekerjaan . ' Diterima',
+            ]);
+
+            // Optionally, create a notification for the job poster (employer)
+            Notification::create([
+                'email_pengguna' => $job->email, // Email of the job poster
+                'message' => 'Pengguna ' . $request->email_pengambil . ' Sudah diterima ke pekerjaan: ' . $job->nama_pekerjaan,
+            ]);
+
+            // Redirect with success message
+            return redirect('jobs')->with('status', 'Lamaran Diterima');
+        }
+
+        // If no application found with the provided email, return an error
+        return redirect('jobs')->with('error', 'Application not found for the provided email!');
     }
+
+
     public function start(JobPosting $job)
     {
         // Mengubah status pekerja menjadi "Bekerja" di tabel 'profils'
@@ -362,4 +421,12 @@ class JobsController extends Controller
         return redirect()->back()->with('success', 'Pekerjaan telah selesai.');
     }
 
+
+    public function bayar(JobPosting $job)
+    {
+        $job->bayaran_pekerja = 'Dibayar';
+        $job->save();
+
+        return redirect()->back();
+    }
 }

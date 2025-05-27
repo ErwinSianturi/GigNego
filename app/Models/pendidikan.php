@@ -12,9 +12,9 @@ class pendidikan extends Model
 
     // Define the fillable attributes
     protected $fillable = [
+        'email',
         'jenjang_pendidikan',
         'nama_institusi',
         'jurusan',
-        'email'
     ];
 }

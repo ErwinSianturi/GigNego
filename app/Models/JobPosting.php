@@ -28,7 +28,8 @@ class JobPosting extends Model
         'image1',
         'image2',
         'image3',
-        'status'
+        'status',
+        'bayaran_pekerja'
     ];
 
     protected $casts = [

@@ -12,12 +12,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
         }
     </style>
+    <link rel="icon" href="{{ asset('GIGNEGO.svg') }}" type="image/svg+xml">
 
 </head>
 
@@ -29,7 +32,6 @@
             <div class="text-2xl font-bold flex items-center">
                 @include('items.svglogo')
             </div>
-
             <button id="menu-toggle" class="md:hidden text-black focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -40,6 +42,95 @@
             <!-- Menu Items -->
             <div id="menu"
                 class="hidden md:flex md:items-center w-full md:w-auto mt-4 md:mt-0 space-y-4 md:space-y-0 md:space-x-8 text-lg">
+                @auth
+                    <div class="relative">
+                        <button id="notification-btn"
+                            class="notification-btn flex items-center space-x-2 px-4 py-2 bg-transparent border-0 relative group">
+                            <svg class="bell-icon w-6 h-6 transition-all duration-300 ease-in-out" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            @if ($notifications->isNotEmpty())
+                                <span
+                                    class="notification-dot absolute -top-1 -right-1 block w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                            @endif
+                        </button>
+
+                        <!-- Notification Dropdown Menu -->
+                        <div id="notification-menu"
+                            class="absolute right-0 mt-2 w-60 bg-white shadow-lg rounded-lg p-4 hidden">
+                            <ul class="space-y-2">
+                                @forelse ($notifications as $notification)
+                                    <li class="p-2 text-sm border-b border-gray-200">
+                                        <p>{{ $notification->message }}</p>
+                                        <p class="text-gray-600">{{ $notification->data }}</p>
+                                        <span
+                                            class="text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                    </li>
+                                @empty
+                                    <li class="p-2 text-sm text-gray-500">No unread notifications</li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </div>
+                    <script>
+                        // Toggle the notification dropdown visibility when the bell icon is clicked
+                        document.getElementById('notification-btn').addEventListener('click', function() {
+                            var menu = document.getElementById('notification-menu');
+                            menu.classList.toggle('hidden');
+
+                            // If the dropdown is opened, mark notifications as read
+                            if (!menu.classList.contains('hidden')) {
+                                // Send AJAX request to mark notifications as read
+                                fetch("{{ route('notifications.markRead') }}", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                        },
+                                        body: JSON.stringify({
+                                            // You can include additional data if needed
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === 'success') {
+                                            // Optionally, update the UI to reflect that notifications have been marked as read
+                                            // Example: Hide the red dot
+                                            document.querySelector('#notification-btn .bg-red-500').classList.add('hidden');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error marking notifications as read:', error));
+                            }
+                        });
+                    </script>
+
+                    <style>
+                        .notification-btn svg {
+                            stroke-width: 2;
+                            transition: all 0.3s ease;
+                        }
+
+                        .notification-btn:hover svg {
+                            transform: scale(1.1);
+                            stroke: rgb(168, 85, 247);
+                            /* text-purple-500 color */
+                        }
+
+                        .notification-dot {
+                            background: radial-gradient(circle at 60% 40%, #EF4444 70%, #DC2626 100%);
+                            box-shadow: 0 0 0 2px white;
+                            transition: all 0.3s ease;
+                        }
+
+                        .notification-btn:hover .notification-dot {
+                            transform: scale(1.2);
+                            box-shadow: 0 0 0 2px white, 0 0 8px rgba(168, 85, 247, 0.5);
+                        }
+                    </style>
+                @endauth
                 <a href="/home" class="text-purple-500">Home</a>
                 <a href="/obrolan" class="text-gray-700 block hover:text-purple-500">Obrolan</a>
                 <a href="/jobs" class="text-gray-700 block hover:text-purple-500">Status kerja</a>
@@ -88,7 +179,7 @@
             Dapatkan proyek, negosiasi langsung, dan selesaikan pekerjaan dengan efisien.
         </p>
         <button onclick="document.getElementById('kategori').scrollIntoView({ behavior: 'smooth' })"
-            class="mt-6 px-6 py-3 bg-black text-white rounded-lg text-lg hover:bg-purple-600 hover:text-white transition-colors duration-300" >
+            class="mt-6 px-6 py-3 bg-black text-white rounded-lg text-lg hover:bg-purple-600 hover:text-white transition-colors duration-300">
             Lihat Selengkapnya
         </button>
     </div>
@@ -157,7 +248,8 @@
                 <!-- Tombol -->
                 <a href="{{ route('category.show', ['jenis_pekerjaan' => 'Perbaikan Rumah']) }}">
                     <button class="flex items-center gap-2 mt-4 text-black font-semibold hover:underline">
-                        <span class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
+                        <span
+                            class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
                         Lihat Selengkapnya
                     </button>
             </div>
@@ -187,7 +279,8 @@
                 <!-- Tombol -->
                 <a href="{{ route('category.show', ['jenis_pekerjaan' => 'Perbaikan Kendaraan']) }}">
                     <button class="flex items-center gap-2 mt-4 text-black font-semibold hover:underline">
-                        <span class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
+                        <span
+                            class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
                         Lihat Selengkapnya
                     </button>
             </div>
@@ -215,7 +308,8 @@
                 <!-- Tombol -->
                 <a href="{{ route('category.show', ['jenis_pekerjaan' => 'Perbaikan Elektronik']) }}">
                     <button class="flex items-center gap-2 mt-4 text-black font-semibold hover:underline">
-                        <span class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
+                        <span
+                            class="flex items-center justify-center w-8 h-8 bg-black text-white rounded-full">➤</span>
                         Lihat Selengkapnya
                     </button>
             </div>
@@ -374,7 +468,8 @@
 
                     <!-- Kiri: Teks -->
                     <div class="flex flex-col basis-full md:basis-1/2 gap-2">
-                        <h3 class="text-white px-4 py-1 rounded-lg text-2xl md:text-3xl w-fit font-normal mb-4 md:mb-6">
+                        <h3
+                            class="text-white px-4 py-1 rounded-lg text-2xl md:text-3xl w-fit font-normal mb-4 md:mb-6">
                             Mengecat Rumah
                         </h3>
                         <p class="text-white text-sm md:text-base leading-relaxed">
@@ -411,7 +506,9 @@
                             “Senang bekerja dengan tanaman?”<br>
                             Kami butuh pembersih taman untuk proyek kebun kota.
                         </p>
-                        <a href="/kategori/kebersihan"><button class="mt-4 px-4 py-2 rounded-lg bg-white text-black hover:bg-black hover:text-white transition-colors duration-300">Lihat Selengkapnya</button></a>
+                        <a href="/kategori/kebersihan"><button
+                                class="mt-4 px-4 py-2 rounded-lg bg-white text-black hover:bg-black hover:text-white transition-colors duration-300">Lihat
+                                Selengkapnya</button></a>
                     </div>
                     <div class="flex items-center justify-center basis-full md:basis-1/2 mt-6 md:mt-0">
                         <div class="w-full max-w-[200px] md:max-w-[250px] aspect-square p-3 sm:p-4 md:p-5">
@@ -420,8 +517,8 @@
                     </div>
                 </div>
             </div>
-             <!-- Slide 3 -->
-             <div class="swiper-slide">
+            <!-- Slide 3 -->
+            <div class="swiper-slide">
                 <div
                     class="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 md:px-10 py-6 bg-gradient-to-r from-[#7100FF] via-[#15AFFF] to-[#E325E6] rounded-[30px] transition transform duration-300 hover:scale-105">
                     <div class="flex flex-col basis-full md:basis-1/2 gap-2">
@@ -431,7 +528,9 @@
                             kebahagiaan akan selalu ada ketika dua menjadi satu<br>
                             kami membutuhkan fotografi untuk pernikahan kami.
                         </p>
-                        <a href="/kategori/Fotografi%20&%20videografi"><button class="mt-4 px-4 py-2 rounded-lg bg-white text-black hover:bg-black hover:text-white transition-colors duration-300">Lihat Selengkapnya</button></a>
+                        <a href="/kategori/Fotografi%20&%20videografi"><button
+                                class="mt-4 px-4 py-2 rounded-lg bg-white text-black hover:bg-black hover:text-white transition-colors duration-300">Lihat
+                                Selengkapnya</button></a>
                     </div>
                     <div class="flex items-center justify-center basis-full md:basis-1/2 mt-6 md:mt-0">
                         <div class="w-full max-w-[200px] md:max-w-[250px] aspect-square p-3 sm:p-4 md:p-5">
@@ -462,9 +561,9 @@
             clickable: true,
         },
         autoplay: {
-    delay: 5000,
-    disableOnInteraction: false,
-},
+            delay: 5000,
+            disableOnInteraction: false,
+        },
 
 
     });
@@ -476,41 +575,46 @@
         <div class="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 py-4">
 
 
-        <!-- Kiri -->
-        <div class="inline-flex flex-col gap-4">
-            <div class=" flex items-center bg-white px-4 py-2 rounded-lg w-fit mt-8 mb-8">
-            @include('items.footer')
-            </div>
-            <div class="bg-lime-400 text-black px-2 py-1 w-fit rounded-md font-semibold text-sm">
-                Contact us:
+            <!-- Kiri -->
+            <div class="inline-flex flex-col gap-4">
+                <div class=" flex items-center bg-white px-4 py-2 rounded-lg w-fit mt-8 mb-8">
+                    @include('items.footer')
+                </div>
+                <div class="bg-lime-400 text-black px-2 py-1 w-fit rounded-md font-semibold text-sm">
+                    Contact us:
+                </div>
+
+                <ul class="text-m leading-relaxed space-y-1">
+                    <li>Email: Gignego@gmail.com</li>
+                    <li>No.HP: 0822-9431-1975</li>
+                    <li>Alamat: Sitoluama,<br>Laguboti, Sumatera Utara</li>
+                </ul>
             </div>
 
-            <ul class="text-m leading-relaxed space-y-1">
-                <li>Email: Gignego@gmail.com</li>
-                <li>No.HP: 0822-9431-1975</li>
-                <li>Alamat: Sitoluama,<br>Laguboti, Sumatera Utara</li>
-            </ul>
+            <!-- Kanan -->
+            <div class="max-w-3xl text-white mt-14   text-center md:text-left text-3xl leading-relaxed">
+                <p class="font-medium">
+                    “Solusi cepat untuk mencari dan menawarkan <br>
+                    pekerjaan, Aman & Terverifikasi,
+                    <br>Rating & Ulasan Terpercaya”
+                </p>
+
+                <!-- Icon Sosial -->
+                <div class="flex justify-center md:justify-start gap-4 mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" fill="#ffffff"
+                        viewBox="0 0 256 256">
+                        <path
+                            d="M254.3,107.91,228.78,56.85a16,16,0,0,0-21.47-7.15L182.44,62.13,130.05,48.27a8.14,8.14,0,0,0-4.1,0L73.56,62.13,48.69,49.7a16,16,0,0,0-21.47,7.15L1.7,107.9a16,16,0,0,0,7.15,21.47l27,13.51,55.49,39.63a8.06,8.06,0,0,0,2.71,1.25l64,16a8,8,0,0,0,7.6-2.1l55.07-55.08,26.42-13.21a16,16,0,0,0,7.15-21.46Zm-54.89,33.37L165,113.72a8,8,0,0,0-10.68.61C136.51,132.27,116.66,130,104,122L147.24,80h31.81l27.21,54.41ZM41.53,64,62,74.22,36.43,125.27,16,115.06Zm116,119.13L99.42,168.61l-49.2-35.14,28-56L128,64.28l9.8,2.59-45,43.68-.08.09a16,16,0,0,0,2.72,24.81c20.56,13.13,45.37,11,64.91-5L188,152.66Zm62-57.87-25.52-51L214.47,64,240,115.06Zm-87.75,92.67a8,8,0,0,1-7.75,6.06,8.13,8.13,0,0,1-1.95-.24L80.41,213.33a7.89,7.89,0,0,1-2.71-1.25L51.35,193.26a8,8,0,0,1,9.3-13l25.11,17.94L126,208.24A8,8,0,0,1,131.82,217.94Z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
         </div>
 
-        <!-- Kanan -->
-        <div class="max-w-3xl text-white mt-14   text-center md:text-left text-3xl leading-relaxed">
-            <p class="font-medium">
-                “Solusi cepat untuk mencari dan menawarkan <br>
-                pekerjaan, Aman & Terverifikasi,
-                <br>Rating & Ulasan Terpercaya”
-            </p>
-
-            <!-- Icon Sosial -->
-            <div class="flex justify-center md:justify-start gap-4 mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" fill="#ffffff" viewBox="0 0 256 256"><path d="M254.3,107.91,228.78,56.85a16,16,0,0,0-21.47-7.15L182.44,62.13,130.05,48.27a8.14,8.14,0,0,0-4.1,0L73.56,62.13,48.69,49.7a16,16,0,0,0-21.47,7.15L1.7,107.9a16,16,0,0,0,7.15,21.47l27,13.51,55.49,39.63a8.06,8.06,0,0,0,2.71,1.25l64,16a8,8,0,0,0,7.6-2.1l55.07-55.08,26.42-13.21a16,16,0,0,0,7.15-21.46Zm-54.89,33.37L165,113.72a8,8,0,0,0-10.68.61C136.51,132.27,116.66,130,104,122L147.24,80h31.81l27.21,54.41ZM41.53,64,62,74.22,36.43,125.27,16,115.06Zm116,119.13L99.42,168.61l-49.2-35.14,28-56L128,64.28l9.8,2.59-45,43.68-.08.09a16,16,0,0,0,2.72,24.81c20.56,13.13,45.37,11,64.91-5L188,152.66Zm62-57.87-25.52-51L214.47,64,240,115.06Zm-87.75,92.67a8,8,0,0,1-7.75,6.06,8.13,8.13,0,0,1-1.95-.24L80.41,213.33a7.89,7.89,0,0,1-2.71-1.25L51.35,193.26a8,8,0,0,1,9.3-13l25.11,17.94L126,208.24A8,8,0,0,1,131.82,217.94Z"></path></svg>
-            </div>
+        <!-- Copyright -->
+        <div class="mt-4 border-t border-white/30 pt-3 text-sm text-center text-white">
+            © 2025 Gignego. All Rights Reserved.
         </div>
-    </div>
-
-    <!-- Copyright -->
-    <div class="mt-4 border-t border-white/30 pt-3 text-sm text-center text-white">
-        © 2025 Gignego. All Rights Reserved.
-    </div>
 </footer>
 
 <!-- Font Awesome untuk ikon -->

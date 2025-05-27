@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GIGNEGO - Kerja Singkat Deal Cepat</title>
+    <link rel="icon" href="{{ asset('GIGNEGO.svg') }}" type="image/svg+xml">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,8 +33,14 @@
                     },
                     keyframes: {
                         fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(20px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
                         }
                     }
                 }
@@ -44,7 +53,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
         }
 
@@ -122,7 +132,8 @@
             transition: all 0.3s ease;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             color: #9B5DE5;
         }
 
@@ -137,7 +148,8 @@
             transition: width 0.3s ease;
         }
 
-        .nav-link:hover:after, .nav-link.active:after {
+        .nav-link:hover:after,
+        .nav-link.active:after {
             width: 100%;
         }
     </style>
@@ -146,6 +158,7 @@
 <body>
     <nav id="navbar" class="fixed top-0 left-0 w-full bg-white z-50 shadow-md transition-all duration-300">
         <div class="container mx-auto px-4 py-3">
+
             <div class="flex justify-between items-center">
                 <!-- Logo -->
                 <a href="/" class="navbar-brand flex items-center space-x-2">
@@ -163,29 +176,131 @@
 
                 <!-- Desktop Menu -->
                 <div class="hidden lg:flex items-center space-x-8">
-                    <a href="/" class="nav-link {{ request()->is('/') ? 'text-purple-600 active' : 'text-gray-700' }} px-1 py-2">Home</a>
-                    <a href="/obrolan" class="nav-link {{ request()->is('obrolan*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Obrolan</a>
-                    <a href="/jobs" class="nav-link {{ request()->is('jobs*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Status kerja</a>
-                    <a href="/profil" class="nav-link {{ request()->is('profil*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Profil</a>
+                    <!-- Notification Icon and Dropdown in Navbar -->
+                    @auth
+                        <div class="relative">
+                            <button id="notification-btn"
+                                class="notification-btn flex items-center space-x-2 px-4 py-2 bg-transparent border-0 relative group">
+                                <svg class="bell-icon w-6 h-6 transition-all duration-300 ease-in-out" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                @if ($notifications->isNotEmpty())
+                                    <span
+                                        class="notification-dot absolute -top-1 -right-1 block w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                                @endif
+                            </button>
+
+                            <!-- Notification Dropdown Menu -->
+                            <div id="notification-menu"
+                                class="absolute right-0 mt-2 w-60 bg-white shadow-lg rounded-lg p-4 hidden">
+                                <ul class="space-y-2">
+                                    @forelse ($notifications as $notification)
+                                        <li class="p-2 text-sm border-b border-gray-200">
+                                            <p>{{ $notification->message }}</p>
+                                            <p class="text-gray-600">{{ $notification->data }}</p>
+                                            <span
+                                                class="text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                        </li>
+                                    @empty
+                                        <li class="p-2 text-sm text-gray-500">No unread notifications</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        </div>
+                        <script>
+                            // Toggle the notification dropdown visibility when the bell icon is clicked
+                            document.getElementById('notification-btn').addEventListener('click', function() {
+                                var menu = document.getElementById('notification-menu');
+                                menu.classList.toggle('hidden');
+
+                                // If the dropdown is opened, mark notifications as read
+                                if (!menu.classList.contains('hidden')) {
+                                    // Send AJAX request to mark notifications as read
+                                    fetch("{{ route('notifications.markRead') }}", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                            },
+                                            body: JSON.stringify({
+                                                // You can include additional data if needed
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.status === 'success') {
+                                                // Optionally, update the UI to reflect that notifications have been marked as read
+                                                // Example: Hide the red dot
+                                                document.querySelector('#notification-btn .bg-red-500').classList.add('hidden');
+                                            }
+                                        })
+                                        .catch(error => console.error('Error marking notifications as read:', error));
+                                }
+                            });
+                        </script>
+
+                        <style>
+                            .notification-btn svg {
+                                stroke-width: 2;
+                                transition: all 0.3s ease;
+                            }
+
+                            .notification-btn:hover svg {
+                                transform: scale(1.1);
+                                stroke: rgb(168, 85, 247);
+                                /* text-purple-500 color */
+                            }
+
+                            .notification-dot {
+                                background: radial-gradient(circle at 60% 40%, #EF4444 70%, #DC2626 100%);
+                                box-shadow: 0 0 0 2px white;
+                                transition: all 0.3s ease;
+                            }
+
+                            .notification-btn:hover .notification-dot {
+                                transform: scale(1.2);
+                                box-shadow: 0 0 0 2px white, 0 0 8px rgba(168, 85, 247, 0.5);
+                            }
+                        </style>
+                    @endauth
+
+                    <a href="/"
+                        class="nav-link {{ request()->is('/') ? 'text-purple-600 active' : 'text-gray-700' }} px-1 py-2">Home</a>
+                    <a href="/obrolan"
+                        class="nav-link {{ request()->is('obrolan*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Obrolan</a>
+                    <a href="/jobs"
+                        class="nav-link {{ request()->is('jobs*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Status
+                        kerja</a>
+                    <a href="/profil"
+                        class="nav-link {{ request()->is('profil*') ? 'text-purple-600 active' : 'text-gray-700 hover:text-purple-600' }} px-1 py-2">Profil</a>
 
                     @auth
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2 bg-transparent border-0">
+                            <button type="submit"
+                                class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2 bg-transparent border-0">
                                 Logout
                             </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2">Login</a>
-                        <a href="{{ route('register') }}" class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2">Register</a>
+                        <a href="{{ route('login') }}"
+                            class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2">Login</a>
+                        <a href="{{ route('register') }}"
+                            class="nav-link text-gray-700 hover:text-purple-600 px-1 py-2">Register</a>
                     @endauth
 
                     <a href="/jobs/create">
-                        <button class="relative px-6 py-2 rounded-lg bg-white border border-gray-300 text-black font-medium transition duration-300 overflow-hidden group">
-                            <span class="relative z-10 bg-clip-text text-black group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-lime-400 group-hover:to-orange-500 transition duration-300">
+                        <button
+                            class="relative px-6 py-2 rounded-lg bg-white border border-gray-300 text-black font-medium transition duration-300 overflow-hidden group">
+                            <span
+                                class="relative z-10 bg-clip-text text-black group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-lime-400 group-hover:to-orange-500 transition duration-300">
                                 Memberi Pekerjaan
                             </span>
-                            <span class="absolute inset-0 rounded-lg pointer-events-none group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-lime-400 group-hover:to-orange-500 p-px transition duration-300"></span>
+                            <span
+                                class="absolute inset-0 rounded-lg pointer-events-none group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-lime-400 group-hover:to-orange-500 p-px transition duration-300"></span>
                             <span class="absolute inset-[2px] rounded-lg bg-white"></span>
                         </button>
                     </a>
@@ -197,25 +312,33 @@
     <!-- Mobile Menu Overlay -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay lg:hidden">
         <div class="mobile-menu-items flex flex-col space-y-6">
-            <a href="/" class="text-xl font-medium {{ request()->is('/') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Home</a>
-            <a href="/obrolan" class="text-xl font-medium {{ request()->is('obrolan*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Obrolan</a>
-            <a href="/jobs" class="text-xl font-medium {{ request()->is('jobs*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Status kerja</a>
-            <a href="/profil" class="text-xl font-medium {{ request()->is('profil*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Profil</a>
+            <a href="/"
+                class="text-xl font-medium {{ request()->is('/') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Home</a>
+            <a href="/obrolan"
+                class="text-xl font-medium {{ request()->is('obrolan*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Obrolan</a>
+            <a href="/jobs"
+                class="text-xl font-medium {{ request()->is('jobs*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Status
+                kerja</a>
+            <a href="/profil"
+                class="text-xl font-medium {{ request()->is('profil*') ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600' }}">Profil</a>
 
             @auth
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="text-xl font-medium text-gray-700 hover:text-purple-600 bg-transparent border-0 p-0">
+                    <button type="submit"
+                        class="text-xl font-medium text-gray-700 hover:text-purple-600 bg-transparent border-0 p-0">
                         Logout
                     </button>
                 </form>
             @else
                 <a href="{{ route('login') }}" class="text-xl font-medium text-gray-700 hover:text-purple-600">Login</a>
-                <a href="{{ route('register') }}" class="text-xl font-medium text-gray-700 hover:text-purple-600">Register</a>
+                <a href="{{ route('register') }}"
+                    class="text-xl font-medium text-gray-700 hover:text-purple-600">Register</a>
             @endauth
 
             <a href="/jobs/create" class="mt-4">
-                <button class="w-full bg-gradient-to-r from-cyan-400 via-lime-400 to-orange-500 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg">
+                <button
+                    class="w-full bg-gradient-to-r from-cyan-400 via-lime-400 to-orange-500 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg">
                     Memberi Pekerjaan
                 </button>
             </a>
@@ -365,4 +488,5 @@
     </script>
     @yield('scripts')
 </body>
+
 </html>

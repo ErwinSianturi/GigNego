@@ -201,7 +201,7 @@
                                             Foto
                                             (opsional)</label>
                                         <input type="file" name="image" class="form-control" id="image">
-                                        <div class="form-text text-muted">Format yang didukung: JPG, PNG, GIF. Maks 2MB.
+                                        <div class="form-text text-muted">Format yang didukung: JPG, PNG, GIF.p
                                         </div>
                                     </div>
                                 </div>

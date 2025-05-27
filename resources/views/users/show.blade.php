@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        
+
 
         @if (!$profile)
             <!-- If the profile doesn't exist, Laravel handles the redirection -->
@@ -62,8 +62,6 @@
                                 <i class="fas fa-graduation-cap me-2"></i>Pendidikan
                             </button>
                         </li>
-
-
                     </ul>
                 </div>
 
@@ -174,26 +172,34 @@
                         <!-- Friends Tab -->
                         <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Jaringan Pendidikan Saya</h4>
-                                <button class="btn btn-outline-primary">
-                                    <i class="fas fa-search me-2"></i>Temukan Institusi
-                                </button>
                             </div>
+
+
                             <div class="row">
                                 <!-- Placeholder for more educational institutions -->
-                                <div class="col-12 mt-3">
-                                    @foreach ($pendidikan as $item)
-                                        <h5 class="card-title fw-bold text-primary">
-                                            {{ $item['jenjang_pendidikan'] }}</h5>
-                                        <p class="card-text mb-1"><strong>Institusi:</strong>
-                                            {{ $item['nama_institusi'] }}</p>
-                                        <p class="card-text"><strong>Jurusan:</strong> {{ $item['jurusan'] }}
-                                        </p>
-                                        @if (!$loop->last)
-                                            <hr class="my-3">
-                                        @endif
-                                    @endforeach
-                                </div>
+                                @if ($pendidikan->isEmpty())
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>Pengguna Ini Belum Menambahkan Pendidikan Terakhirnya
+                                    </div>
+                                @else
+                                    <div class="col-12 mt-3">
+                                        @foreach ($pendidikan as $item)
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title fw-bold text-primary">
+                                                        {{ $item['jenjang_pendidikan'] }}</h5>
+                                                    <p class="card-text mb-1"><strong>Institusi:</strong>
+                                                        {{ $item['nama_institusi'] }}</p>
+                                                    <p class="card-text"><strong>Jurusan:</strong> {{ $item['jurusan'] }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            @if (!$loop->last)
+                                                <hr class="my-3">
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
